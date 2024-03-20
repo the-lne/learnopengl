@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ -lglfw main.cc -o ./build/exec
+g++ -lglfw -std=c++17 -Wall main.cc glad.c -o ./build/exec
