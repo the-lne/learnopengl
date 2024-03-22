@@ -3,9 +3,7 @@
 
 class Shaders {
     public:
-        #include "glsl.mwahaha"
-        #include "vertex.glsl"
-        #include  "fragment.glsl"
+        #include "shader.strings"
 
         unsigned int vertex_shader;
         unsigned int fragment_shader;
@@ -13,7 +11,6 @@ class Shaders {
         int buildVertexShader();
         int buildFragmentShader();
         int linkShaders(unsigned int* shaderProgram);
-    private:
 };
 
 #endif
