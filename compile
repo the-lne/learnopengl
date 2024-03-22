@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ -lglfw -std=c++17 -Wall main.cc glad.c -o ./build/exec
+g++ -lglfw -std=c++20 -Wall main.cc shaders.cc glad.c -o ./build/exec
