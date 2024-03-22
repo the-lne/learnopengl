@@ -1,3 +1,11 @@
+#ifdef _MSC_BUILD // visual c++ compiler
+#define __DYNAMIC_FUNC_NAME__ __FUNCSIG__
+#elif __GNUC__
+#define __DYNAMIC_FUNC_NAME__ __PRETTY_FUNCTION__
+#elif 
+#define __DYNAMIC_FUNC_NAME__ __func__
+#endif
+
 #include "glad.h"
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_CXX20 // sync glm and compiler versions
@@ -8,8 +16,9 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processEscapeKey(GLFWwindow *window);
 void processWKey(GLFWwindow *window, int* current_polygon_mode);
+void ErrorLeave(const char* file, int line, const char* function);
 
-int main()
+int main() 
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -25,28 +34,31 @@ int main()
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        return -1;
+        return 0;
     }
+
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        return 0;
     }
 
     Shaders shaders;
 
+    ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
     if (shaders.buildVertexShader())
-        std::cout << "shaders.buildVertexShader() returned 1" << std::endl;
+        ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
 
     if (shaders.buildFragmentShader())
-        std::cout << "buildFragmentShader doesn't work" << std::endl;
+        ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
 
     unsigned int shaderProgram;
     if (shaders.linkShaders(&shaderProgram))
-        std::cout << "linker didn't work" << std::endl;
+        ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
+
 
     /**
      * so far its looking pretty clean and understandable
@@ -59,8 +71,6 @@ int main()
      * 
      * in the future, make it multithreaded, and make a debouncer!
     */
-
-
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -82,7 +92,6 @@ int main()
     // now bind the buffer and set its attributes
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
 
     // here we tell opengl how to interpret the vertex data
     // here is an outline of the function input (it largely depends on the glsl)
@@ -163,13 +172,13 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processEscapeKey(GLFWwindow *window)
+void processEscapeKey(GLFWwindow *window) 
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
 
-void processWKey(GLFWwindow *window, int* current_polygon_mode)
+void processWKey(GLFWwindow *window, int* current_polygon_mode) 
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
@@ -183,9 +192,18 @@ void processWKey(GLFWwindow *window, int* current_polygon_mode)
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
 {
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+void ErrorLeave(const char* file, int line, const char* function) 
+{
+    std::cout << "Failure!" << std::endl;
+    std::cout << "File: " << file << std::endl;
+    std::cout << "Line: " << line << std::endl;
+    std::cout<< "Function: " << function << std::endl;
+    exit(0);
 }
