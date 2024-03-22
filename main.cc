@@ -6,6 +6,8 @@
 #define __DYNAMIC_FUNC_NAME__ __func__
 #endif
 
+#define ERROR_LEAVE_FUNC ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__)
+
 #include "glad.h"
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_CXX20 // sync glm and compiler versions
@@ -20,7 +22,9 @@ void ErrorLeave(const char* file, int line, const char* function);
 
 int main() 
 {
-    glfwInit();
+    if (!glfwInit())
+        ERROR_LEAVE_FUNC;
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -31,34 +35,25 @@ int main()
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "myopengl", NULL, NULL);
     if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return 0;
-    }
+        ERROR_LEAVE_FUNC;
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return 0;
-    }
+        ERROR_LEAVE_FUNC;
 
     Shaders shaders;
 
-    ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
     if (shaders.buildVertexShader())
-        ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
+        ERROR_LEAVE_FUNC;
 
     if (shaders.buildFragmentShader())
-        ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
+        ERROR_LEAVE_FUNC;
 
     unsigned int shaderProgram;
     if (shaders.linkShaders(&shaderProgram))
-        ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__);
-
+        ERROR_LEAVE_FUNC;
 
     /**
      * so far its looking pretty clean and understandable
@@ -130,8 +125,7 @@ int main()
         tick = glfwGetTime();
         //std::cout << tick << std::endl;
         //shaders->buildVertexShader();
-        if (tick > 0.003)
-        //if (1)
+        if (tick > 0.010)
         {
             //tick = glfwGetTime();
             glfwSetTime(0);
@@ -158,20 +152,14 @@ int main()
         }
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
-
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
+
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processEscapeKey(GLFWwindow *window) 
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -190,12 +178,8 @@ void processWKey(GLFWwindow *window, int* current_polygon_mode)
     (*current_polygon_mode) = !(*current_polygon_mode);
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
 
@@ -205,5 +189,6 @@ void ErrorLeave(const char* file, int line, const char* function)
     std::cout << "File: " << file << std::endl;
     std::cout << "Line: " << line << std::endl;
     std::cout<< "Function: " << function << std::endl;
+    glfwTerminate();
     exit(0);
 }
