@@ -1,29 +1,21 @@
-#ifdef _MSC_BUILD // visual c++ compiler
-#define __DYNAMIC_FUNC_NAME__ __FUNCSIG__
-#elif __GNUC__
-#define __DYNAMIC_FUNC_NAME__ __PRETTY_FUNCTION__
-#elif 
-#define __DYNAMIC_FUNC_NAME__ __func__
-#endif
-
-#define ERROR_LEAVE_FUNC ErrorLeave(__FILE__, __LINE__, __DYNAMIC_FUNC_NAME__)
-
 #include "glad.h"
 #include <GLFW/glfw3.h>
-#define GLM_FORCE_CXX20 // sync glm and compiler versions
+#define GLM_FORCE_CXX20 // sync glm and compiler standards
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include "shaders.h"
+#include "logging.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processEscapeKey(GLFWwindow *window);
 void processWKey(GLFWwindow *window, int* current_polygon_mode);
-void ErrorLeave(const char* file, int line, const char* function);
 
 int main() 
 {
     if (!glfwInit())
-        ERROR_LEAVE_FUNC;
+        LOG_ERROR;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -34,26 +26,26 @@ int main()
 #endif
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "myopengl", NULL, NULL);
-    if (window == NULL)
-        ERROR_LEAVE_FUNC;
+    if (!window)
+        LOG_ERROR;
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        ERROR_LEAVE_FUNC;
+        LOG_ERROR;
 
     Shaders shaders;
 
     if (shaders.buildVertexShader())
-        ERROR_LEAVE_FUNC;
+        LOG_ERROR;
 
     if (shaders.buildFragmentShader())
-        ERROR_LEAVE_FUNC;
+        LOG_ERROR;
 
     unsigned int shaderProgram;
     if (shaders.linkShaders(&shaderProgram))
-        ERROR_LEAVE_FUNC;
+        LOG_ERROR;
 
     /**
      * so far its looking pretty clean and understandable
@@ -72,8 +64,29 @@ int main()
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // left  
          0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
+         0.0f,  0.5f, 0.0f,  // top   
+        // second triangle
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
     }; 
+
+    unsigned int vertices[] = {
+
+    };
+
+/*
+    float vertices[] = {
+        // first triangle
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f,  0.5f, 0.0f,  // top left 
+        // second triangle
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left
+    }; 
+    */
 
     // generate vertex array object wrapper first
     unsigned int VAO;
@@ -181,14 +194,4 @@ void processWKey(GLFWwindow *window, int* current_polygon_mode)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) 
 {
     glViewport(0, 0, width, height);
-}
-
-void ErrorLeave(const char* file, int line, const char* function) 
-{
-    std::cout << "Failure!" << std::endl;
-    std::cout << "File: " << file << std::endl;
-    std::cout << "Line: " << line << std::endl;
-    std::cout<< "Function: " << function << std::endl;
-    glfwTerminate();
-    exit(0);
 }

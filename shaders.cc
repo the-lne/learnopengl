@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 #include "shaders.h"
 
-
 int Shaders::buildVertexShader() {
     Shaders::vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(Shaders::vertex_shader, 1, &vertex_shader_source, NULL);
@@ -47,7 +46,8 @@ int Shaders::linkShaders(unsigned int* shaderProgram) {
     int success;
     char infoLog[512];
     glGetProgramiv(*shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
+    if (!success) 
+    {
         glGetProgramInfoLog(*shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         return 1;
