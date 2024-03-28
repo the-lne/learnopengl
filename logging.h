@@ -7,7 +7,7 @@ void Log_Error(const char* file, int line, const char* function);
 #define __DYNAMIC_FUNC_NAME__ __FUNCSIG__
 #elif __GNUC__
 #define __DYNAMIC_FUNC_NAME__ __PRETTY_FUNCTION__
-#elif 
+#else 
 #define __DYNAMIC_FUNC_NAME__ __func__
 #endif
 

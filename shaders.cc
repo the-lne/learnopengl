@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "shaders.h"
 
-int Shaders::buildVertexShader() {
+int Shaders::buildVertexShader(void) {
     Shaders::vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(Shaders::vertex_shader, 1, &vertex_shader_source, NULL);
     glCompileShader(Shaders::vertex_shader);
@@ -20,7 +20,7 @@ int Shaders::buildVertexShader() {
     return 0;
 }
 
-int Shaders::buildFragmentShader() {
+int Shaders::buildFragmentShader(void) {
     Shaders::fragment_shader = glCreateShader(GL_FRAGMENT_SHADER); 
     glShaderSource(Shaders::fragment_shader, 1, &fragment_shader_source, NULL); 
     glCompileShader(Shaders::fragment_shader); 
